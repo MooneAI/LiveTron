@@ -76,6 +76,9 @@ els.gpsButton.addEventListener("click", () => {
 els.resetButton.addEventListener("click", async () => {
   const data = await api("reset", { id: currentGameId(), token: state.token });
   state.ready = false;
+  state.pendingMeters = 0;
+  state.speedMps = 0;
+  state.lastGps = null;
   updateGame(data.game);
 });
 
@@ -133,6 +136,7 @@ function renderHud() {
   els.readyButton.textContent = state.ready ? "Ready" : "Ready";
   els.readyButton.classList.toggle("ready", state.ready);
   els.readyButton.textContent = "Ready";
+  els.resetButton.textContent = game.status === "finished" ? "Play Again" : "Reset";
   els.directionStatus.textContent = me ? `${me.id === "host" ? "Blue" : "Orange"} | ${state.desiredDir}` : `Direction: ${state.desiredDir}`;
   els.speedStatus.textContent = `Moved: ${state.pendingMeters.toFixed(1)}m | ${state.speedMps.toFixed(1)} m/s`;
 

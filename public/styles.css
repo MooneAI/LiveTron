@@ -228,8 +228,21 @@ body[data-status="countdown"] .controls {
 }
 
 body[data-status="playing"] .scoreRow,
-body[data-status="countdown"] .scoreRow {
+body[data-status="countdown"] .scoreRow,
+body[data-status="finished"] .scoreRow {
   display: none;
+}
+
+body[data-status="finished"] #readyButton,
+body[data-status="finished"] #copyButton,
+body[data-status="finished"] #gpsButton {
+  display: none;
+}
+
+body[data-status="finished"] #resetButton {
+  grid-column: 1 / -1;
+  border-color: rgba(126, 231, 135, 0.76);
+  background: rgba(18, 61, 32, 0.9);
 }
 
 .telemetry {

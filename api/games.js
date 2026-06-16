@@ -46,6 +46,9 @@ export default async function handler(request, response) {
       const fresh = createGame(hostName, game.id, hostToken, guestToken);
       fresh.players.guest.joined = game.players.guest.joined;
       fresh.players.guest.name = guestName;
+      if (fresh.players.guest.joined) {
+        fresh.message = "Both players ready up for the next round.";
+      }
       await writeGame(fresh);
       return send(response, 200, { game: publicGame(fresh, token), token });
     } else {

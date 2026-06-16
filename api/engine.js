@@ -183,8 +183,12 @@ function resolveCollisions(game) {
   const survivors = Object.values(game.players).filter((player) => player.alive);
   game.status = "finished";
   game.winner = survivors.length === 1 ? survivors[0].id : "draw";
-  game.message = game.winner === "draw" ? "Both players crashed." : `${game.players[game.winner].name} wins.`;
+  game.message = game.winner === "draw" ? "Draw. Both players crashed." : `${playerColorName(game.winner)} wins.`;
   addEvent(game, game.message);
+}
+
+function playerColorName(playerId) {
+  return playerId === "host" ? "Blue" : "Orange";
 }
 
 function hitEdge(game, player) {
