@@ -227,6 +227,11 @@ body[data-status="countdown"] .controls {
   display: none;
 }
 
+body[data-status="playing"] .scoreRow,
+body[data-status="countdown"] .scoreRow {
+  display: none;
+}
+
 .telemetry {
   display: flex;
   flex-wrap: wrap;
@@ -237,6 +242,26 @@ body[data-status="countdown"] .controls {
   border-radius: 8px;
   background: rgba(3, 12, 15, 0.54);
   backdrop-filter: blur(14px);
+}
+
+#directionStatus {
+  min-width: 7.5rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 900;
+}
+
+body[data-player="host"] #directionStatus {
+  background: rgba(36, 216, 255, 0.18);
+  color: var(--blue);
+  box-shadow: inset 0 0 0 1px rgba(36, 216, 255, 0.45);
+}
+
+body[data-player="guest"] #directionStatus {
+  background: rgba(255, 176, 32, 0.18);
+  color: var(--orange);
+  box-shadow: inset 0 0 0 1px rgba(255, 176, 32, 0.45);
 }
 
 @media (min-width: 720px) {

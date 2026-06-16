@@ -31,6 +31,7 @@ const state = {
   ready: false,
   gpsWatch: null,
   lastGps: null,
+  pendingMeters: 0,
   speedMps: 0,
   sound: false,
   tickTimer: null,
@@ -107,7 +108,9 @@ function updateGame(game) {
   if (game.me) state.role = game.me;
   const me = game.players[state.role];
   if (me) {
-    state.desiredDir = me.desiredDir;
+    if (!state.gpsWatch && game.status !== "playing" && game.status !== "countdown") {
+      state.desiredDir = me.desiredDir;
+    }
     state.ready = me.ready;
   }
   renderHud();
@@ -119,17 +122,19 @@ function renderHud() {
   document.body.dataset.status = game.status;
   const host = game.players.host;
   const guest = game.players.guest;
+  const me = game.players[state.role];
+  document.body.dataset.player = state.role || "";
   els.setupForm.classList.toggle("hidden", Boolean(state.token && state.role));
   els.controls.classList.toggle("hidden", !(state.token && state.role));
   els.hostName.textContent = host.name;
   els.guestName.textContent = guest.joined ? guest.name : "Invite needed";
   els.hostState.textContent = labelPlayer(host);
   els.guestState.textContent = guest.joined ? labelPlayer(guest) : "Waiting";
-  els.readyButton.textContent = state.ready ? "Ready ✓" : "Ready";
+  els.readyButton.textContent = state.ready ? "Ready" : "Ready";
   els.readyButton.classList.toggle("ready", state.ready);
   els.readyButton.textContent = "Ready";
-  els.directionStatus.textContent = `Direction: ${state.desiredDir}`;
-  els.speedStatus.textContent = `Speed: ${state.speedMps.toFixed(1)} m/s`;
+  els.directionStatus.textContent = me ? `${me.id === "host" ? "Blue" : "Orange"} | ${state.desiredDir}` : `Direction: ${state.desiredDir}`;
+  els.speedStatus.textContent = `Moved: ${state.pendingMeters.toFixed(1)}m | ${state.speedMps.toFixed(1)} m/s`;
 
   if (game.status === "countdown") {
     const remaining = Math.max(0, Math.ceil((Date.parse(game.startsAt) - Date.now()) / 1000));
@@ -227,14 +232,17 @@ function startLoops() {
 
 async function sendTick() {
   if (!state.token || !currentGameId()) return;
+  const distanceMeters = state.pendingMeters;
   try {
     const data = await api("tick", {
       id: currentGameId(),
       token: state.token,
       desiredDir: state.desiredDir,
       speedMps: state.speedMps,
+      distanceMeters,
       gps: state.lastGps
     });
+    state.pendingMeters = Math.max(0, state.pendingMeters - distanceMeters);
     updateGame(data.game);
   } catch (error) {
     toast(error.message);
@@ -284,19 +292,24 @@ function onGps(position) {
   };
   const maxAccuracy = state.game?.settings.maxGpsAccuracy || 35;
   if (gps.accuracy > maxAccuracy) {
-    els.gpsStatus.textContent = `GPS weak ±${Math.round(gps.accuracy)}m`;
+    els.gpsStatus.textContent = `GPS weak +/-${Math.round(gps.accuracy)}m`;
     return;
   }
   if (state.lastGps) {
     const meters = distanceMeters(state.lastGps, gps);
     const seconds = Math.max(0.4, (gps.at - state.lastGps.at) / 1000);
-    state.speedMps = Math.min(8, meters / seconds);
-    if (meters >= (state.game?.settings.sampleMinMeters || 5)) {
+    if (meters >= 0.75) {
+      state.pendingMeters += Math.min(12, meters);
+      state.speedMps = Math.min(8, meters / seconds);
+    }
+    if (Number.isFinite(position.coords.heading)) {
+      setDirection(bearingToDir(position.coords.heading));
+    } else if (meters >= (state.game?.settings.sampleMinMeters || 2)) {
       setDirection(bearingToDir(bearingDegrees(state.lastGps, gps)));
     }
   }
   state.lastGps = gps;
-  els.gpsStatus.textContent = `GPS ±${Math.round(gps.accuracy)}m`;
+  els.gpsStatus.textContent = `GPS +/-${Math.round(gps.accuracy)}m`;
 }
 
 function onGpsError(error) {

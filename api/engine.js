@@ -24,11 +24,12 @@ export function createGame(hostName, id, hostToken, guestToken) {
     arena: ARENA,
     settings: {
       countdownSeconds: 8,
-      baseSpeed: 80,
-      maxSpeedBoost: 75,
+      metersToUnits: 8,
+      idleUnitsPerSecond: 0,
+      maxMoveUnitsPerTick: 90,
       trailPadding: 8,
       edgePadding: 12,
-      sampleMinMeters: 5,
+      sampleMinMeters: 2,
       maxGpsAccuracy: 35
     },
     players: {
@@ -52,7 +53,8 @@ function makePlayer(id, name, token, start, color) {
     y: start.y,
     dir: start.dir,
     desiredDir: start.dir,
-    speed: 80,
+    speed: 0,
+    pendingUnits: 0,
     lastStepAt: null,
     trail: [{ x1: start.x, y1: start.y, x2: start.x, y2: start.y }],
     gps: null
@@ -121,15 +123,15 @@ export function updatePlayer(game, token, input) {
     for (const item of Object.values(game.players)) item.lastStepAt = Date.now();
     addEvent(game, "Game started.");
   }
-  if (game.status === "playing") stepGame(game);
   if (!player.alive || game.status === "finished") return;
 
   const desiredDir = sanitizeDirection(input?.desiredDir);
   if (desiredDir && desiredDir !== OPPOSITE[player.dir]) player.desiredDir = desiredDir;
 
   const realSpeed = Number(input?.speedMps || 0);
-  const boost = Math.max(0, Math.min(game.settings.maxSpeedBoost, realSpeed * 12));
-  player.speed = game.settings.baseSpeed + boost;
+  const distanceMeters = Math.max(0, Math.min(20, Number(input?.distanceMeters || 0)));
+  player.speed = realSpeed;
+  player.pendingUnits = (player.pendingUnits || 0) + distanceMeters * (game.settings.metersToUnits || 8);
 
   if (input?.gps) {
     player.gps = {
@@ -139,6 +141,8 @@ export function updatePlayer(game, token, input) {
       at: new Date().toISOString()
     };
   }
+
+  if (game.status === "playing") stepGame(game);
 }
 
 export function stepGame(game) {
@@ -154,8 +158,13 @@ export function stepGame(game) {
       player.trail.push({ x1: player.x, y1: player.y, x2: player.x, y2: player.y });
     }
     const vector = VECTORS[player.dir];
-    player.x += vector.x * player.speed * elapsed;
-    player.y += vector.y * player.speed * elapsed;
+    const idleUnits = (game.settings.idleUnitsPerSecond || 0) * elapsed;
+    const maxMoveUnits = game.settings.maxMoveUnitsPerTick || 90;
+    const moveUnits = Math.min(maxMoveUnits, (player.pendingUnits || 0) + idleUnits);
+    player.pendingUnits = Math.max(0, player.pendingUnits - moveUnits);
+    if (moveUnits <= 0) continue;
+    player.x += vector.x * moveUnits;
+    player.y += vector.y * moveUnits;
     const segment = player.trail[player.trail.length - 1];
     segment.x2 = player.x;
     segment.y2 = player.y;
