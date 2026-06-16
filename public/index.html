@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#071014">
+    <title>LiveTron</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">LiveTron</p>
+          <h1 id="statusTitle">Outdoor light cycles</h1>
+        </div>
+        <button id="soundToggle" class="iconButton" type="button" aria-label="Toggle sound">Sound</button>
+      </section>
+
+      <section class="arenaWrap" aria-label="Game arena">
+        <canvas id="arena" width="1000" height="700"></canvas>
+        <div id="overlay" class="overlay">
+          <div id="overlayText">Create or join a match</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="scoreRow">
+          <div class="playerCard blue">
+            <span>Blue</span>
+            <strong id="hostName">Waiting</strong>
+            <small id="hostState">Not ready</small>
+          </div>
+          <div class="playerCard orange">
+            <span>Orange</span>
+            <strong id="guestName">Invite needed</strong>
+            <small id="guestState">Not ready</small>
+          </div>
+        </div>
+
+        <form id="setupForm" class="setup">
+          <label>
+            <span>Your name</span>
+            <input id="playerName" name="name" autocomplete="given-name" maxlength="18" placeholder="Player">
+          </label>
+          <div class="buttonGrid">
+            <button id="createButton" type="submit">New Game</button>
+            <button id="joinButton" type="button">Join Link</button>
+          </div>
+        </form>
+
+        <div id="gameControls" class="controls hidden">
+          <button id="readyButton" type="button">Ready</button>
+          <button id="copyButton" type="button">Copy Invite</button>
+          <button id="gpsButton" type="button">Start GPS</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+
+        <div class="dpad" aria-label="Manual steering controls">
+          <button data-dir="N" aria-label="Turn north">↑</button>
+          <button data-dir="W" aria-label="Turn west">←</button>
+          <button data-dir="E" aria-label="Turn east">→</button>
+          <button data-dir="S" aria-label="Turn south">↓</button>
+        </div>
+
+        <div class="telemetry">
+          <span id="gpsStatus">GPS idle</span>
+          <span id="directionStatus">Direction: E</span>
+          <span id="speedStatus">Speed: 0.0 m/s</span>
+        </div>
+      </section>
+    </main>
+    <script src="/game.js" type="module"></script>
+  </body>
+</html>
