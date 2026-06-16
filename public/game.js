@@ -84,30 +84,6 @@ els.soundToggle.addEventListener("click", () => {
   chirp(520, 0.05);
 });
 
-document.querySelectorAll(".dpad button").forEach((button) => {
-  button.addEventListener("click", () => setDirection(button.dataset.dir));
-});
-
-window.addEventListener("keydown", (event) => {
-  const keyMap = { ArrowUp: "N", ArrowRight: "E", ArrowDown: "S", ArrowLeft: "W" };
-  if (keyMap[event.key]) setDirection(keyMap[event.key]);
-});
-
-let touchStart = null;
-window.addEventListener("touchstart", (event) => {
-  const touch = event.changedTouches[0];
-  touchStart = { x: touch.clientX, y: touch.clientY };
-}, { passive: true });
-
-window.addEventListener("touchend", (event) => {
-  if (!touchStart) return;
-  const touch = event.changedTouches[0];
-  const dx = touch.clientX - touchStart.x;
-  const dy = touch.clientY - touchStart.y;
-  if (Math.hypot(dx, dy) < 40) return;
-  setDirection(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "E" : "W") : (dy > 0 ? "S" : "N"));
-}, { passive: true });
-
 function playerName() {
   return els.playerName.value.trim() || "Player";
 }
@@ -123,6 +99,7 @@ function acceptSession(data) {
   localStorage.setItem("livetron:role", state.role);
   updateGame(data.game);
   startLoops();
+  if (!state.gpsWatch) startGps();
 }
 
 function updateGame(game) {
@@ -139,6 +116,7 @@ function updateGame(game) {
 function renderHud() {
   const game = state.game;
   if (!game) return;
+  document.body.dataset.status = game.status;
   const host = game.players.host;
   const guest = game.players.guest;
   els.setupForm.classList.toggle("hidden", Boolean(state.token && state.role));
@@ -149,6 +127,7 @@ function renderHud() {
   els.guestState.textContent = guest.joined ? labelPlayer(guest) : "Waiting";
   els.readyButton.textContent = state.ready ? "Ready ✓" : "Ready";
   els.readyButton.classList.toggle("ready", state.ready);
+  els.readyButton.textContent = "Ready";
   els.directionStatus.textContent = `Direction: ${state.desiredDir}`;
   els.speedStatus.textContent = `Speed: ${state.speedMps.toFixed(1)} m/s`;
 
@@ -286,6 +265,7 @@ function startGps() {
   });
   els.gpsButton.textContent = "Stop GPS";
   els.gpsStatus.textContent = "GPS starting";
+  toast("GPS is the controller. Run to steer.");
 }
 
 function stopGps() {
@@ -324,6 +304,7 @@ function onGpsError(error) {
 }
 
 function setDirection(dir) {
+  if (state.desiredDir === dir) return;
   state.desiredDir = dir;
   els.directionStatus.textContent = `Direction: ${dir}`;
   buzz(30);

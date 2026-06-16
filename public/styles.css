@@ -1,24 +1,27 @@
 :root {
   color-scheme: dark;
-  --bg: #071014;
-  --panel: #101a1f;
-  --line: #24343b;
+  --bg: #020708;
+  --panel: rgba(8, 18, 22, 0.76);
+  --line: rgba(105, 145, 154, 0.34);
   --text: #f3fbff;
-  --muted: #9fb3bd;
+  --muted: #aac0c8;
   --blue: #24d8ff;
   --orange: #ffb020;
-  --green: #7ee787;
-  --red: #ff5c7a;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
-  min-height: 100svh;
-  background: radial-gradient(circle at 50% 0%, #12313a 0, var(--bg) 44rem);
+  background: var(--bg);
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -28,67 +31,87 @@ input {
   font: inherit;
 }
 
+.shell,
+.arenaWrap,
+canvas {
+  position: fixed;
+  inset: 0;
+}
+
 .shell {
-  display: grid;
-  gap: 14px;
-  width: min(100%, 760px);
-  min-height: 100svh;
-  margin: 0 auto;
-  padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+  overflow: hidden;
+  background: #020708;
+}
+
+.arenaWrap {
+  background: #020708;
+}
+
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100svh;
+}
+
+.topbar,
+.panel {
+  position: fixed;
+  z-index: 3;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
 }
 
 .topbar {
+  top: max(10px, env(safe-area-inset-top));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.topbar > *,
+.panel {
+  pointer-events: auto;
 }
 
 .eyebrow {
   margin: 0 0 4px;
   color: var(--blue);
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: 0.74rem;
+  font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(36, 216, 255, 0.75);
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(1.45rem, 7vw, 2.4rem);
+  max-width: min(72vw, 34rem);
+  font-size: clamp(1.25rem, 5vw, 2.2rem);
   line-height: 1.02;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.8);
 }
 
-.iconButton,
 button {
-  min-height: 46px;
-  border: 1px solid #31505a;
+  min-height: 44px;
+  border: 1px solid rgba(139, 180, 190, 0.42);
   border-radius: 8px;
-  background: #15272e;
+  background: rgba(11, 25, 31, 0.86);
   color: var(--text);
-  font-weight: 800;
+  font-weight: 850;
+  backdrop-filter: blur(14px);
 }
 
-.arenaWrap {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  aspect-ratio: 10 / 7;
-  border: 1px solid #2a4852;
-  border-radius: 8px;
-  background: #020708;
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
-}
-
-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
+.iconButton {
+  min-width: 76px;
+  padding: 0 12px;
 }
 
 .overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 2;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -100,35 +123,38 @@ canvas {
 }
 
 #overlayText {
-  max-width: 22rem;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  max-width: min(84vw, 28rem);
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
-  background: rgba(5, 13, 16, 0.82);
+  background: rgba(5, 13, 16, 0.78);
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.42);
   text-align: center;
   font-weight: 900;
+  backdrop-filter: blur(14px);
 }
 
 .panel {
+  bottom: max(10px, env(safe-area-inset-bottom));
   display: grid;
-  gap: 12px;
-  align-self: end;
+  gap: 8px;
 }
 
 .scoreRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .playerCard {
   display: grid;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
-  padding: 12px;
+  padding: 9px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
+  backdrop-filter: blur(14px);
 }
 
 .playerCard span,
@@ -136,57 +162,59 @@ canvas {
 label span,
 .telemetry {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 .playerCard strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 0.96rem;
 }
 
 .playerCard.blue {
-  border-color: color-mix(in srgb, var(--blue), #20323a 60%);
+  border-color: color-mix(in srgb, var(--blue), transparent 50%);
 }
 
 .playerCard.orange {
-  border-color: color-mix(in srgb, var(--orange), #3a2b16 60%);
+  border-color: color-mix(in srgb, var(--orange), transparent 48%);
 }
 
 .setup,
 .controls {
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 label {
+  grid-column: 1 / -1;
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 input {
   width: 100%;
-  min-height: 48px;
-  border: 1px solid #35505a;
+  min-height: 44px;
+  border: 1px solid rgba(139, 180, 190, 0.42);
   border-radius: 8px;
-  background: #081216;
+  background: rgba(3, 12, 15, 0.88);
   color: var(--text);
   padding: 0 12px;
+  backdrop-filter: blur(14px);
 }
 
-.buttonGrid,
-.controls {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.buttonGrid {
+  display: contents;
 }
 
 button:active {
   transform: translateY(1px);
 }
 
-button.primary,
 #readyButton.ready {
-  border-color: #5fa86c;
-  background: #173822;
+  border-color: rgba(126, 231, 135, 0.72);
+  background: rgba(18, 61, 32, 0.86);
   color: #eaffef;
 }
 
@@ -194,54 +222,32 @@ button.primary,
   display: none;
 }
 
-.dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 56px);
-  grid-template-areas:
-    ". up ."
-    "left . right"
-    ". down .";
-  justify-content: center;
-  gap: 8px;
-  touch-action: manipulation;
-}
-
-.dpad button {
-  width: 56px;
-  min-height: 48px;
-  font-size: 1.2rem;
-}
-
-.dpad [data-dir="N"] {
-  grid-area: up;
-}
-
-.dpad [data-dir="W"] {
-  grid-area: left;
-}
-
-.dpad [data-dir="E"] {
-  grid-area: right;
-}
-
-.dpad [data-dir="S"] {
-  grid-area: down;
+body[data-status="playing"] .controls,
+body[data-status="countdown"] .controls {
+  display: none;
 }
 
 .telemetry {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: 6px 12px;
   justify-content: center;
+  padding: 7px 10px;
+  border: 1px solid rgba(139, 180, 190, 0.2);
+  border-radius: 8px;
+  background: rgba(3, 12, 15, 0.54);
+  backdrop-filter: blur(14px);
 }
 
 @media (min-width: 720px) {
-  .shell {
-    padding-block: 28px;
+  .topbar,
+  .panel {
+    left: 22px;
+    right: 22px;
   }
 
-  .setup {
-    grid-template-columns: 1fr 1fr;
-    align-items: end;
+  .panel {
+    right: auto;
+    width: min(430px, calc(100vw - 44px));
   }
 }
