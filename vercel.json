@@ -1,7 +1,6 @@
 {
   "version": 2,
   "buildCommand": "",
-  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/game/:id",
